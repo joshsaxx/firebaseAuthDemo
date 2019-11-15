@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">My AuthApp</string>
+    <string name="registration_success">Registered Successfully</string>
+</resources>
