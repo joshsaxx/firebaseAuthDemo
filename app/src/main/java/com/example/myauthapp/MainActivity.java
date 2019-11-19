@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -18,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.FirebaseDatabase;
 
 import org.w3c.dom.Text;
@@ -26,8 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private EditText editTextEmail ,editTextPswd;
 
-
-
+    private ProgressBar progressBar;
 
     //private TextView textViewSignin;
 
@@ -49,10 +51,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editTextPswd = (EditText) findViewById(R.id.editTextPswd);
 
 
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        findViewById(R.id.textViewSignin).setOnClickListener(this);
+
+        findViewById(R.id.signupButton).setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
 
-        findViewById(R.id.signupButton).setOnClickListener(this);
 
 
 
@@ -70,20 +76,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        // Check if user is signed in (non-null) and update UI accordingly.
-        /**FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);*/
-
-        if (mAuth.getCurrentUser() != null){
-
-        }
 
 
-    }
+
 
     public void registerUser(){
 
@@ -101,30 +96,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         if (password.length() < 8) {
-            editTextPswd.setError("Password should be at least 8 characters long");
+            editTextPswd.setError("Password must be at least 8 characters long");
             editTextPswd.requestFocus();
             return;
         }
 
-        mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        progressBar.setVisibility(View.VISIBLE);
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                progressBar.setVisibility(View.GONE);
+                if (task.isSuccessful()){
+                    Toast.makeText(getApplicationContext(),"User Registered Successfully",Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, Welcomepage.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+
+                }else {
+                    //Toast.makeText(getApplicationContext(),"User Registration Failed!",Toast.LENGTH_SHORT).show();
+
+                    if (task.getException() instanceof FirebaseAuthUserCollisionException){
+                        Toast.makeText(getApplicationContext(),"User Already Exists",Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(getApplicationContext(), task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //progressBar.setVisibility(View.VISIBLE);
+        /**mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
 
-                    User user = new User(
-                            email
-
-                    );
 
                     FirebaseDatabase.getInstance().getReference("Users")
                             .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                             .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
+                            progressBar.setVisibility(View.GONE);
                             if (task.isSuccessful()) {
-                                displayToast("Registration Successful");
+                                Toast.makeText(MainActivity.this, "User Registration Successful", Toast.LENGTH_SHORT).show();
                             } else {
-                                displayToast("Registration Unsuccessful");
+                                Toast.makeText(MainActivity.this, "User Registration Successful", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -133,15 +162,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
-        });
+        });*/
 
 
 
     }
 
-    public void displayToast(String message){
-        Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
-    }
+
 
     @Override
     public void onClick(View v) {
@@ -149,9 +176,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case  R.id.signupButton:
                 registerUser();
                 break;
+
         }
 
+        switch (v.getId()){
+            case R.id.textViewSignin:
+                startActivity(new Intent(this,SigninActivity.class));
+                break;
+        }
+
+
+
     }
+
 
 
     /**private void updateUI(FirebaseUser currentUser) {
@@ -217,3 +254,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }*/
 }
+
+
