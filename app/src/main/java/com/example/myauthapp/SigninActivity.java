@@ -15,7 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class SigninActivity extends AppCompatActivity {
+public class SigninActivity extends AppCompatActivity implements View.OnClickListener{
 
     private EditText editTextEmail, editTextPswd;
     private ProgressBar progressBar;
@@ -26,17 +26,17 @@ public class SigninActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
 
-       /** editTextEmail = (EditText) findViewById(R.id.editTextEmail);
+       editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPswd = (EditText) findViewById(R.id.editTextPswd);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        findViewById(R.id.signupButton).setOnClickListener(this);
+        findViewById(R.id.signInButton).setOnClickListener(this);
 
-        mAuth = FirebaseAuth.getInstance();*/
+        mAuth = FirebaseAuth.getInstance();
     }
 
-    /**public void userSignin(){
+    public void userSignin(){
         final String email = editTextEmail.getText().toString().trim();
         String password = editTextPswd.getText().toString().trim();
 
@@ -80,5 +80,5 @@ public class SigninActivity extends AppCompatActivity {
                 userSignin();
                 break;
         }
-    }*/
+    }
 }
